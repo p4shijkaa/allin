@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework.authtoken.views import obtain_auth_token
 
 from user_account_auth.views import VerifyEmailView, UserRegistrationView, UserLoginView, UserLogoutView, \
     PasswordResetView, PasswordResetConfirmView
@@ -12,5 +11,4 @@ urlpatterns = [
     path('password-reset/', PasswordResetView.as_view(), name='password_reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
-    # path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # если нужно отдельный endpoint для получения токена
 ]

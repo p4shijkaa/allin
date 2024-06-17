@@ -90,6 +90,7 @@ class SetPasswordSerializer(serializers.Serializer):
         if self.context['request'].session.get('reset_code') != code:
             raise serializers.ValidationError("Неверный код сброса пароля.")
 
+        user.reset_code = None
         user.set_password(new_password)
         user.save()
         return user

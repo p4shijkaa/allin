@@ -16,25 +16,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     about_me = models.TextField(null=True, blank=True, verbose_name='О себе')
     photo = models.ImageField(upload_to='photos/', null=True, blank=True, verbose_name='Фото')
     city = models.CharField(max_length=150, null=True, blank=True, verbose_name='Город')
+    reset_code = models.CharField(max_length=150, null=True, blank=True, verbose_name='Код для сброса пароля')
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
-
-    # groups = models.ManyToManyField(
-    #     Group,
-    #     verbose_name=_('groups'),
-    #     blank=True,
-    #     help_text=_(
-    #         'The groups this user belongs to. A user will get all permissions granted to each of their groups.'),
-    #     related_name='users_set'
-    # )
-    # user_permissions = models.ManyToManyField(
-    #     Permission,
-    #     verbose_name=_('user permissions'),
-    #     blank=True,
-    #     help_text=_('Specific permissions for this user.'),
-    #     related_name='users_set'
-    # )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

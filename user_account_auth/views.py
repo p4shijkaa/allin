@@ -66,7 +66,12 @@ class VerifyEmailView(GenericAPIView):
 
         if user is not None:
             if user.is_active:
-                return Response({"message": "Пользователь уже активирован."}, status=status.HTTP_200_OK)
+                # Если пользователь уже активирован, получаем его токен
+                token = Token.objects.get(user=user)
+                return Response({
+                    "message": "Пользователь уже активирован.",
+                    "token": token.key,
+                }, status=status.HTTP_200_OK)
             elif default_token_generator.check_token(user, token):
                 user.is_active = True
                 user.save()
@@ -116,8 +121,14 @@ class UserLogoutView(GenericAPIView):
 
     @extend_schema(tags=["Выход пользователя"])
     def post(self, request, *args, **kwargs):
-        logout(request)
-        return Response({"detail": "Успешный выход из системы."}, status=status.HTTP_200_OK)
+        # Получаем токен пользователя
+        token = Token.objects.get(user=self.request.user)
+        if token:
+            # Удаляем токен из базы данных
+            token.delete()
+            return Response({"detail": "Успешный выход из системы."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Токен не найден."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PasswordResetView(GenericAPIView):
