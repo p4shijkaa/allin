@@ -33,6 +33,24 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class VerificationSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=5)
+
+    def validate(self, data):
+        code = data.get('code')
+        email = self.context['request'].session.get('email')
+
+        if not email:
+            raise serializers.ValidationError("Email для подтверждения не найден в сессии.")
+
+        user = User.objects.filter(email=email, reset_code=code, is_active=False).first()
+        if not user:
+            raise serializers.ValidationError("Неверный код подтверждения.")
+
+        data['user'] = user
+        return data
+
+
 class LoginUserSerializer(serializers.Serializer):
     """
     Сериализатор для входа пользователей.
