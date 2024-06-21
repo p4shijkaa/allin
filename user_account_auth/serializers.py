@@ -34,6 +34,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class VerificationSerializer(serializers.Serializer):
+    """
+    Сериализатор для верификации пользователя.
+    """
     code = serializers.CharField(max_length=5)
 
     def validate(self, data):
