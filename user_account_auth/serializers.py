@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model, authenticate
 from django.core.validators import EmailValidator
 from rest_framework import serializers
@@ -10,6 +12,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     """
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
+    email = serializers.EmailField()
 
     class Meta:
         model = get_user_model()
@@ -18,6 +21,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError("Пароли не совпадают")
+        email = data['email'].lower()
+        user = User.objects.filter(email__iexact=email).first()
+        if user:
+            if user.is_active:
+                raise serializers.ValidationError("Пользователь с такой почтой уже существует и активен.")
+            else:
+                user.delete()
         return data
 
     def create(self, validated_data):
@@ -115,3 +125,14 @@ class SetPasswordSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         return user
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для просмотра/редактирования информации о пользователе.
+    """
+    class Meta:
+        model = get_user_model()
+        fields = ('first_name', 'last_name', 'email', 'phone', 'date_joined', 'about_me', 'city', 'is_active')
+        read_only_fields = ('date_joined', 'is_active')
+

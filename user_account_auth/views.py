@@ -12,11 +12,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from user_account_auth.serializers import RegistrationSerializer, LoginUserSerializer, PasswordResetSerializer, \
-    SetPasswordSerializer, VerificationSerializer
+    SetPasswordSerializer, VerificationSerializer, UserDetailsSerializer
 
 
 def send_verification_code(user):
-
     code = ''.join(random.choices('0123456789', k=5))  # Генерируем код для пользователя
     user.reset_code = code  # Сохраняем код в поле пользователя
     user.save()
@@ -42,27 +41,12 @@ class UserRegistrationView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.validated_data['email']
-
-            # Проверяем, существует ли пользователь с такой почтой и активен ли он
-            user = User.objects.filter(email=email).first()
-            if user:
-                if user.is_active:
-                    return Response({"message": "Пользователь с такой почтой уже существует."},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # Отправляем новый код подтверждения для неактивного пользователя
-                    send_verification_code(user)
-                    return Response({"message": "Новый код подтверждения отправлен на вашу почту."},
-                                    status=status.HTTP_200_OK)
-
-            # Если пользователь не существует, создаем нового
-            user = serializer.save(is_active=False)  # Пользователь неактивен до подтверждения почты
+            user = serializer.save()  # Пользователь неактивен до подтверждения почты
             send_verification_code(user)
             request.session['email'] = user.email
             return Response({"message": "Код подтверждения отправлен на вашу почту."},
                             status=status.HTTP_201_CREATED)
-        return Response({"message": "Ошибка валидации данных", "errors": serializer.errors},
+        return Response({"errors": serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -94,7 +78,7 @@ class VerifyEmailView(GenericAPIView):
 
             return Response({"message": "Регистрация успешно подтверждена.", "token": token.key, "id": user.pk},
                             status=status.HTTP_200_OK)
-        return Response({"message": "Ошибка валидации данных", "errors": serializer.errors},
+        return Response({"errors": serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -104,14 +88,7 @@ class UserLoginView(GenericAPIView):
     """
     serializer_class = LoginUserSerializer
 
-    @extend_schema(
-        tags=["Вход пользователя"],
-        responses={
-            200: OpenApiResponse(description="Успешный вход."),
-            401: OpenApiResponse(description="Неверные учетные данные."),
-            400: OpenApiResponse(description="Ошибка валидации данных."),
-        }
-    )
+    @extend_schema(tags=["Вход пользователя"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -179,7 +156,7 @@ class PasswordResetConfirmView(GenericAPIView):
     serializer_class = SetPasswordSerializer
 
     @extend_schema(tags=["Подтверждение сброса пароля"])
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -189,3 +166,46 @@ class PasswordResetConfirmView(GenericAPIView):
             return Response({"message": "Пароль успешно обновлен."}, status=status.HTTP_200_OK)
         return Response({"message": "Ошибка валидации данных", "errors": serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDeleteView(GenericAPIView):
+    """
+    Представление для удаления пользователя.
+    """
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(tags=["Удаление пользователя"])
+    def delete(self, request):
+        user = request.user
+
+        # Удаление токенов пользователя
+        Token.objects.filter(user=user).delete()
+        # Удаление пользователя
+        user.delete()
+        return Response({"message": "Пользователь успешно удален."},
+                        status=status.HTTP_204_NO_CONTENT)
+
+
+class UserDetailsView(GenericAPIView):
+    """
+    Представление для просмотра(get)/редактирования информации о пользователе (patch).
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailsSerializer
+
+    @extend_schema(tags=["Просмотр информации о пользователе"])
+    def get(self, request):
+        user = request.user
+        serializer = self.get_serializer(user)
+        return Response({"message": 'Информация о пользователе.', "info": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    @extend_schema(tags=["Редактирование информации о пользователе"])
+    def patch(self, request):
+        user = request.user
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": 'Данные о пользователе успешно обновлены.', "info": serializer.data},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
