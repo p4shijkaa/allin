@@ -111,15 +111,15 @@ class SetPasswordSerializer(serializers.Serializer):
         email = self.context['request'].session.get('reset_email')
 
         if not email:
-            raise serializers.ValidationError("Email для сброса пароля не найден в сессии.")
+            raise serializers.ValidationError({"errors": "Email для сброса пароля не найден в сессии."})
 
         user = User.objects.get(email=email)
         if not user:
-            raise serializers.ValidationError("Пользователь с таким email не найден.")
+            raise serializers.ValidationError({"errors": "Пользователь с таким email не найден."})
 
         # Проверяем код из сессии
         if self.context['request'].session.get('reset_code') != code:
-            raise serializers.ValidationError("Неверный код сброса пароля.")
+            raise serializers.ValidationError({"errors": "Неверный код сброса пароля."})
 
         user.reset_code = None
         user.set_password(new_password)
