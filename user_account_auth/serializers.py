@@ -89,7 +89,7 @@ class PasswordResetSerializer(serializers.Serializer):
     """
     Сериализатор для восстановления пароля.
     """
-    email = serializers.EmailField(validators=[EmailValidator()])
+    email = serializers.EmailField()
 
 
 class SetPasswordSerializer(serializers.Serializer):
