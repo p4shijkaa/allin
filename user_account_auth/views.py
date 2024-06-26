@@ -135,7 +135,7 @@ class PasswordResetView(GenericAPIView):
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
-                return Response({"errors": "Пользователь с такой электронной почтой не найден."},
+                return Response({"errors": serializer.errors},
                                 status=status.HTTP_404_NOT_FOUND)
 
             send_verification_code(user)
