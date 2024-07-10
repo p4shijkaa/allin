@@ -206,3 +206,32 @@ class UserDetailsView(GenericAPIView):
             serializer.save()
             return Response({"message": serializer.data}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GoogleLoginView(GenericAPIView):
+    """
+    Представление для входа пользователей через google аккаунт.
+    """
+
+    @extend_schema(tags=["Вход через google аккаунт"])
+    def post(self, request):
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        google_id = request.data.get('google_id')
+
+        if not email or not google_id:
+            return Response({'errors': 'Электронная почта или Google ID отсутствует'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = User.objects.create_user(email=email, first_name=first_name, last_name=last_name)
+            user.set_unusable_password()
+            user.is_active = True
+            user.save()
+
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({"message": "Успешный вход через google аккаунт.", "token": token.key, "id": user.pk},
+                        status=status.HTTP_200_OK)
