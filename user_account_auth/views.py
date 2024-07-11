@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from user_account_auth.serializers import RegistrationSerializer, LoginUserSerializer, PasswordResetSerializer, \
-    SetPasswordSerializer, VerificationSerializer, UserDetailsSerializer
+    SetPasswordSerializer, VerificationSerializer, UserDetailsSerializer, GoogleLoginSerializer
 
 auth_header_parameter = OpenApiParameter(
     name="Authorization",
@@ -212,17 +212,17 @@ class GoogleLoginView(GenericAPIView):
     """
     Представление для входа пользователей через google аккаунт.
     """
+    serializer_class = GoogleLoginSerializer
 
     @extend_schema(tags=["Вход через google аккаунт"])
     def post(self, request):
-        email = request.data.get('email')
-        first_name = request.data.get('first_name')
-        last_name = request.data.get('last_name')
-        google_id = request.data.get('google_id')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not email or not google_id:
-            return Response({'errors': 'Электронная почта или Google ID отсутствует'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        email = serializer.validated_data.get('email')
+        first_name = serializer.validated_data.get('first_name')
+        last_name = serializer.validated_data.get('last_name')
+        google_id = serializer.validated_data.get('google_id')
 
         try:
             user = User.objects.get(email=email)

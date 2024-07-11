@@ -136,3 +136,12 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         fields = ('first_name', 'last_name', 'email', 'phone', 'date_joined', 'about_me', 'city', 'is_active')
         read_only_fields = ('date_joined', 'is_active')
 
+
+class GoogleLoginSerializer(serializers.Serializer):
+    """
+    Сериализатор для входа пользователей через google аккаунт.
+    """
+    email = serializers.EmailField()
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
+    google_id = serializers.CharField()
