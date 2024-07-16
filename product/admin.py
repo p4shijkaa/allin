@@ -1,5 +1,11 @@
 from django.contrib import admin
-from product.models import Service, Flowers, Establishment, Dish, Taxi, Review
+from product.models import Service, Flowers, Establishment, Dish, Taxi, Review, Image
+
+
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    """Регистрация в админ панели модели Image."""
+    list_display = ["src", "alt"]
 
 
 @admin.register(Service)
@@ -7,8 +13,8 @@ class ServiceAdmin(admin.ModelAdmin):
     """Регистрация в админ панели модели Service."""
 
     list_display = ["id", "name", "description", "photo", "discount", "dateFrom",   # Поля отображаемые в админке
-                    "dateTo", "date_time", "comment", "is_active", "publish"]
-    list_filter = ["name", "discount", "date_time", "comment", "is_active", "publish"]   # Фильтрации по указанным полям
+                    "dateTo", "comment", "is_active", "publish"]
+    list_filter = ["name", "discount", "comment", "is_active", "publish"]   # Фильтрации по указанным полям
     search_fields = ["name", "description", "comment"]   # Поле поиска по указанным полям
     ordering = ["id", "publish"]   # Упорядочивание по умолчанию
     exclude = ["publish",]   # Поля исключены из редактируемых
@@ -72,5 +78,5 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ["id", "author", "text", "rating", "data", "service", "is_active"]   # Поля отображаемые в админке
     list_filter = ["author", "rating", "data", "service", "is_active"]   # Фильтрации по указанным полям
     search_fields = ["author", "text", "service"]   # Поле поиска по указанным полям
-    ordering = ["id", "publish"]   # Упорядочивание по умолчанию
+    ordering = ["id",]   # Упорядочивание по умолчанию
     exclude = ["data",]   # Поля исключены из редактируемых

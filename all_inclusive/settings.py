@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'user_account_auth.apps.UserAccountAuthConfig',
     'drf_spectacular',
     'corsheaders',
+    'product.apps.ProductConfig',
 
 ]
 
@@ -65,7 +66,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = ["https://yourexampledomain.com", "http://localhost:1234"]
 
 ROOT_URLCONF = 'all_inclusive.urls'
 
