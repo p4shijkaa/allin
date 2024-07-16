@@ -4,39 +4,33 @@ from django.utils import timezone
 from user_account_auth.models import User
 
 
-def service_photo_path(instance, filename):
-    """Путь до папки услуг"""
-    return f'static/services/{instance.id}/{filename}'
+class Image(models.Model):
+    """Модель для хранения изображений."""
 
+    src = models.ImageField(upload_to="static/image/", default="static/image/default.png", verbose_name="Ссылка")
+    alt = models.CharField(max_length=128, verbose_name="Описание")
 
-def flowers_photo_path(instance, filename):
-    """Путь до папки цветов"""
-    return f'static/services/{instance.service.id}/{instance.id}/{filename}/'
+    class Meta:
+        verbose_name = "Изображение"
+        verbose_name_plural = "Изображения"
 
-
-def establishments_photo_path(instance, filename):
-    """Путь до папки заведений"""
-    return f'static/services/{instance.service.id}/{instance.id}/{filename}/'
-
-
-def dishes_photo_path(instance, filename):
-    """Путь до папки блюд из заведений"""
-    return f'static/services/{instance.establishment.service.id}/{instance.establishment.id}/{instance.id}/{filename}/'
+    def __str__(self):
+        return self.alt if self.src else "No Image"
 
 
 class Service(models.Model):
     """Модель Service представляет услуги, предлагаемые на платформе."""
     name = models.CharField(max_length=100, verbose_name="Название услуги")
     description = models.TextField(null=True, blank=True, verbose_name="Описание услуги")
-    photo = models.ImageField(upload_to=service_photo_path, verbose_name="Фото услуги")
+    photo = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="service_photo", blank=True, null=True,
+                              verbose_name="Фото услуги")
     discount = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)], default=0,
                                    verbose_name="Скидка на услугу")
     dateFrom = models.DateTimeField(null=True, blank=True, verbose_name="Дата начала акции")
     dateTo = models.DateTimeField(null=True, blank=True, verbose_name="Дата окончания акции")
-    date_time = models.DateTimeField(verbose_name="Дата и время")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к заказу")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
-    publish = models.DateTimeField(date_time=timezone.now, verbose_name="Дата создания")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     def calculate_total_price(self):
         """Высчитываем цену за услугу, с учётом выбора пользователя"""
@@ -70,12 +64,13 @@ class Flowers(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='flowers')
     name = models.CharField(max_length=100, verbose_name="Название букета")
     description = models.TextField(null=True, blank=True, verbose_name="Информация о букете")
-    photo = models.ImageField(upload_to=flowers_photo_path, verbose_name="Фото букета")
+    photo = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="flowers_photo", blank=True, null=True,
+                              verbose_name="Фото букета")
     count = models.IntegerField(null=True, blank=True, verbose_name="Количество цветов в букете")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена букета")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к букету")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
-    publish = models.DateTimeField(date_time=timezone.now, verbose_name="Дата создания")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     class Meta:
         verbose_name = "Цветы"
@@ -90,11 +85,12 @@ class Establishment(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='establishments')
     name = models.CharField(max_length=100, verbose_name="Название заведения")
     description = models.TextField(null=True, blank=True, verbose_name="Информация о заведении")
-    photo = models.ImageField(verbose_name="Фото заведения")
+    photo = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="establishment_photo", blank=True,
+                              null=True, verbose_name="Фото заведения")
     address = models.CharField(max_length=100, verbose_name="Адрес заведения")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к заведению")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
-    publish = models.DateTimeField(date_time=timezone.now, verbose_name="Дата создания")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     class Meta:
         verbose_name = "Заведение"
@@ -109,12 +105,13 @@ class Dish(models.Model):
     establishment = models.ForeignKey(Establishment, on_delete=models.CASCADE, related_name='dishes')
     name = models.CharField(max_length=100, verbose_name="Название блюда")
     description = models.TextField(null=True, blank=True, verbose_name="Информация о блюде")
-    photo = models.ImageField(upload_to=dishes_photo_path, verbose_name="Фото блюда")
+    photo = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="dish_photo", blank=True, null=True,
+                              verbose_name="Фото блюда")
     count = models.IntegerField(default=1, verbose_name="Количество блюд")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена блюда")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к блюду")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
-    publish = models.DateTimeField(date_time=timezone.now, verbose_name="Дата создания")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     class Meta:
         verbose_name = "Блюдо"
@@ -133,11 +130,11 @@ class Taxi(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Цена такси")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к такси")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
-    publish = models.DateTimeField(date_time=timezone.now, verbose_name="Дата создания")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     class Meta:
-        verbose_name = "Блюдо"
-        verbose_name_plural = "Блюдо"
+        verbose_name = "Такси"
+        verbose_name_plural = "Такси"
 
     def __str__(self):
         return self.service.name
@@ -160,4 +157,4 @@ class Review(models.Model):
         verbose_name_plural = "Отзывы"
 
     def __str__(self):
-        return self.text
+        return self.is_active

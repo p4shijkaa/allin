@@ -48,10 +48,13 @@ class VerificationSerializer(serializers.Serializer):
     Сериализатор для верификации пользователя.
     """
     code = serializers.CharField(max_length=5)
-
+    email = serializers.EmailField()  # новая строка тест
     def validate(self, data):
         code = data.get('code')
-        email = self.context['request'].session.get('email')
+        email = self.context['request'].data.get('email')   # новая строка тест
+        print(f"111 code: {code}")
+        print(f"222 email: {email}")
+        # email = self.context['request'].session.get('email')
 
         if not email:
             raise serializers.ValidationError("Email для подтверждения не найден в сессии.")
@@ -61,6 +64,7 @@ class VerificationSerializer(serializers.Serializer):
             raise serializers.ValidationError("Неверный код подтверждения.")
 
         data['user'] = user
+        print(user.email)
         return data
 
 

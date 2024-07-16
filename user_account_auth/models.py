@@ -34,4 +34,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique_together = ('email', 'phone')
 
     def __str__(self):
-        return self.first_name
+        return self.email or f"Пользователь {self.id}"
