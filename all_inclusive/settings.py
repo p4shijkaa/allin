@@ -65,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = ["https://yourexampledomain.com", "http://localhost:1234", "https://allincluis.netlify.app/"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'all_inclusive.urls'
 
