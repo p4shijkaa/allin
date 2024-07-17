@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'user_account_auth.apps.UserAccountAuthConfig',
     'drf_spectacular',
     'corsheaders',
-
+    'product.apps.ProductConfig',
 ]
 
 MIDDLEWARE = [
