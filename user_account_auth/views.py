@@ -140,9 +140,9 @@ class PasswordResetView(GenericAPIView):
 
             send_verification_code(user)
 
-            # Сохраняем email и код в сессии
-            request.session['reset_email'] = email
-            request.session['reset_code'] = user.reset_code
+            # # Сохраняем email и код в сессии
+            # request.session['reset_email'] = email
+            # request.session['reset_code'] = user.reset_code
             return Response({"message": "Код отправлен на вашу электронную почту."}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,9 +158,6 @@ class PasswordResetConfirmView(GenericAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            # Удаляем email и код из сессии после успешного сброса пароля
-            del request.session['reset_email']
-            del request.session['reset_code']
             return Response({"message": "Пароль успешно обновлен."}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 

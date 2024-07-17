@@ -48,13 +48,11 @@ class VerificationSerializer(serializers.Serializer):
     Сериализатор для верификации пользователя.
     """
     code = serializers.CharField(max_length=5)
-    email = serializers.EmailField()  # новая строка тест
+    email = serializers.EmailField()
+
     def validate(self, data):
         code = data.get('code')
-        email = self.context['request'].data.get('email')   # новая строка тест
-        print(f"111 code: {code}")
-        print(f"222 email: {email}")
-        # email = self.context['request'].session.get('email')
+        email = self.context['request'].data.get('email')
 
         if not email:
             raise serializers.ValidationError("Email для подтверждения не найден в сессии.")
@@ -64,7 +62,6 @@ class VerificationSerializer(serializers.Serializer):
             raise serializers.ValidationError("Неверный код подтверждения.")
 
         data['user'] = user
-        print(user.email)
         return data
 
 
@@ -101,29 +98,29 @@ class SetPasswordSerializer(serializers.Serializer):
     Сериализатор для сброса пароля с помощью высланного кода на Email.
     """
     code = serializers.CharField(max_length=5)
+    email = serializers.EmailField()
     new_password1 = serializers.CharField(write_only=True)
     new_password2 = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        if data['new_password1'] != data['new_password2']:
+        code = data.get('code')
+        email = self.context['request'].data.get('email')
+        new_password1 = data.get('new_password1')
+        new_password2 = data.get('new_password2')
+
+        if new_password1 != new_password2:
             raise serializers.ValidationError("Пароли не совпадают.")
+        if not email:
+            raise serializers.ValidationError({"errors": "Email для сброса пароля не найден в сессии."})
+        user = User.objects.filter(email=email, reset_code=code).first()
+        if not user:
+            raise serializers.ValidationError({"errors": "Неверный код сброса пароля."})
+        data['user'] = user
         return data
 
     def save(self):
-        code = self.validated_data['code']
+        user = self.validated_data['user']
         new_password = self.validated_data['new_password1']
-        email = self.context['request'].session.get('reset_email')
-
-        if not email:
-            raise serializers.ValidationError({"errors": "Email для сброса пароля не найден в сессии."})
-
-        user = User.objects.get(email=email)
-        if not user:
-            raise serializers.ValidationError({"errors": "Пользователь с таким email не найден."})
-
-        # Проверяем код из сессии
-        if self.context['request'].session.get('reset_code') != code:
-            raise serializers.ValidationError({"errors": "Неверный код сброса пароля."})
 
         user.reset_code = None
         user.set_password(new_password)
