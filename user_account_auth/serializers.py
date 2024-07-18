@@ -77,12 +77,19 @@ class LoginUserSerializer(serializers.Serializer):
         email = data.get('email')
         password = data.get('password')
         if email and password:
+            user = User.objects.filter(email=email).first()
+            if not user:
+                raise serializers.ValidationError("Неверные учетные данные.")
+            if not user.is_active:
+                user.delete()
+                raise serializers.ValidationError(
+                    "Ваш аккаунт не активирован. Пожалуйста, зарегистрируйтесь и подтвердите свою почту.")
             user = authenticate(email=email, password=password)
             if not user:
                 raise serializers.ValidationError("Неверные учетные данные.")
             data['user'] = user
         else:
-            raise serializers.ValidationError("Необходимо указать имя пользователя и пароль.")
+            raise serializers.ValidationError("Необходимо указать email и пароль.")
         return data
 
 
