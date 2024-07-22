@@ -1,5 +1,5 @@
 from django.contrib import admin
-from product.models import Service, Flowers, Establishment, Dish, Taxi, Review, Image
+from product.models import Service, Flowers, Establishment, Dish, Taxi, Review, Image, Decoration
 
 
 @admin.register(Image)
@@ -66,6 +66,17 @@ class TaxiAdmin(admin.ModelAdmin):
                     "price", "comment", "is_active", "publish"]
     list_filter = ["service", "date_time", "price", "comment", "is_active",   # Фильтрации по указанным полям
                    "publish"]
+    search_fields = ["service", "name", "description", "comment"]   # Поле поиска по указанным полям
+    ordering = ["id", "publish"]   # Упорядочивание по умолчанию
+    exclude = ["publish",]   # Поля исключены из редактируемых
+
+
+@admin.register(Decoration)
+class DecorationAdmin(admin.ModelAdmin):
+    """Регистрация в админ панели модели Decoration."""
+    list_display = ["id", "service", "name", "description", "photo", "comment", 'price',   # Поля отображаемые в админке
+                    "is_active", "publish"]
+    list_filter = ["service", "name", "comment", 'price', "is_active", "publish"]   # Фильтрации по указанным полям
     search_fields = ["service", "name", "description", "comment"]   # Поле поиска по указанным полям
     ordering = ["id", "publish"]   # Упорядочивание по умолчанию
     exclude = ["publish",]   # Поля исключены из редактируемых

@@ -33,7 +33,7 @@ def send_verification_code(user):
     )
 
 
-@extend_schema_view(post=extend_schema(tags=["Регистрация пользователя"]))
+@extend_schema_view(post=extend_schema(tags=["Пользователь: регистрация пользователя"]))
 class UserRegistrationView(CreateAPIView):
     """
     Представление для регистрации пользователя.
@@ -59,7 +59,7 @@ class VerifyEmailView(GenericAPIView):
 
     serializer_class = VerificationSerializer
 
-    @extend_schema(tags=["Подтверждение регистрации"])
+    @extend_schema(tags=["Пользователь: подтверждение регистрации"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -88,7 +88,7 @@ class UserLoginView(GenericAPIView):
     """
     serializer_class = LoginUserSerializer
 
-    @extend_schema(tags=["Вход пользователя"])
+    @extend_schema(tags=["Пользователь: вход пользователя"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -109,7 +109,7 @@ class UserLogoutView(GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(tags=["Выход пользователя"],
+    @extend_schema(tags=["Пользователь: выход пользователя"],
                    parameters=[auth_header_parameter])
     def post(self, request, *args, **kwargs):
         try:
@@ -127,7 +127,7 @@ class PasswordResetView(GenericAPIView):
 
     serializer_class = PasswordResetSerializer
 
-    @extend_schema(tags=["Восстановления пароля через email"])
+    @extend_schema(tags=["Пользователь: восстановления пароля через email"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -153,7 +153,7 @@ class PasswordResetConfirmView(GenericAPIView):
     """
     serializer_class = SetPasswordSerializer
 
-    @extend_schema(tags=["Подтверждение сброса пароля"])
+    @extend_schema(tags=["Пользователь: подтверждение сброса пароля"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -168,7 +168,7 @@ class UserDeleteView(GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(tags=["Удаление пользователя"],
+    @extend_schema(tags=["Пользователь: удаление пользователя"],
                    parameters=[auth_header_parameter])
     def delete(self, request):
         user = request.user
@@ -187,14 +187,14 @@ class UserDetailsView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailsSerializer
 
-    @extend_schema(tags=["Просмотр информации о пользователе"],
+    @extend_schema(tags=["Пользователь: просмотр информации о пользователе"],
                    parameters=[auth_header_parameter])
     def get(self, request):
         user = request.user
         serializer = self.get_serializer(user)
         return Response({"message": serializer.data}, status=status.HTTP_200_OK)
 
-    @extend_schema(tags=["Редактирование информации о пользователе"],
+    @extend_schema(tags=["Пользователь: редактирование информации о пользователе"],
                    parameters=[auth_header_parameter])
     def patch(self, request):
         user = request.user
@@ -211,7 +211,7 @@ class GoogleLoginView(GenericAPIView):
     """
     serializer_class = GoogleLoginSerializer
 
-    @extend_schema(tags=["Вход через google аккаунт"])
+    @extend_schema(tags=["Пользователь: вход через google аккаунт"])
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
@@ -32,24 +33,30 @@ class Service(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
     publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
-    def calculate_total_price(self):
-        """Высчитываем цену за услугу, с учётом выбора пользователя"""
-        total_price = 0
-        for flower in self.flowers.all():
-            total_price += flower.price
-        for establishment in self.establishments.all():
-            for dish in establishment.dishes.all():
-                total_price += dish.price
-        for taxi in self.taxis.all():
-            total_price += taxi.price
-
-        discount = (self.discount / 100) * total_price
-        total_price -= discount
-        return total_price
-
-    @property
-    def price(self):
-        return self.calculate_total_price()
+    # def calculate_total_price(self):
+    #     """Высчитываем цену за услугу, с учётом выбора пользователя"""
+    #     total_price = Decimal('0.00')
+    #
+    #     for flower in self.flowers.all():
+    #         total_price += Decimal(flower.price)
+    #
+    #     for establishment in self.establishments.all():
+    #         for dish in establishment.dishes.all():
+    #             total_price += Decimal(dish.price)
+    #
+    #     for taxi in self.taxis.all():
+    #         total_price += Decimal(taxi.price)
+    #
+    #     for decoration in self.decorations.all():
+    #         total_price += Decimal(decoration.price)
+    #
+    #     discount = (Decimal(self.discount) / Decimal('100.00')) * total_price
+    #     total_price -= discount
+    #     return total_price
+    #
+    # @property
+    # def price(self):
+    #     return self.calculate_total_price()
 
     class Meta:
         verbose_name = "Сервис"
@@ -127,7 +134,7 @@ class Taxi(models.Model):
     boarding_address = models.CharField(max_length=255, verbose_name="Адрес посадки пассажира")
     dropoff_address = models.CharField(max_length=255, verbose_name="Адрес высадки пассажира")
     date_time = models.DateTimeField(verbose_name="Дата и время для подачи такси")
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Цена такси")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('15.00'), verbose_name="Цена такси")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к такси")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
     publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
@@ -138,6 +145,26 @@ class Taxi(models.Model):
 
     def __str__(self):
         return self.service.name
+
+
+class Decoration(models.Model):
+    """Модель оформление для услуги"""
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='decorations')
+    name = models.CharField(max_length=100, verbose_name="Название оформления")
+    description = models.TextField(null=True, blank=True, verbose_name="Информация об оформлении")
+    photo = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="decoration_photo", blank=True,
+                              null=True, verbose_name="Фото оформления")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Цена оформления")
+    comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к оформлению")
+    is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
+    publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
+
+    class Meta:
+        verbose_name = "Оформление"
+        verbose_name_plural = "Оформления"
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
