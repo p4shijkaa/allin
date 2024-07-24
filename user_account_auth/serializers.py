@@ -84,7 +84,7 @@ class LoginUserSerializer(serializers.Serializer):
                 user.delete()
                 raise serializers.ValidationError(
                     "Ваш аккаунт не активирован. Пожалуйста, зарегистрируйтесь и подтвердите свою почту.")
-            user = authenticate(email=email, password=password)
+            user = authenticate(username=email, password=password)
             if not user:
                 raise serializers.ValidationError("Неверные учетные данные.")
             data['user'] = user
