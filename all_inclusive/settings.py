@@ -33,6 +33,13 @@ ALLOWED_HOSTS = [
     "3111811-fi72193.twc1.net",
 ]
 
+# For admin panel work in production
+CSRF_TRUSTED_ORIGINS = [
+    'https://3111811-fi72193.twc1.net',
+    'http://94.241.142.224:1234/',
+    'https://allincluis.netlify.app/',
+]
+
 # AUTH
 AUTH_USER_MODEL = 'user_account_auth.User'
 AUTHENTICATION_BACKENDS = ('user_account_auth.backends.AuthBackend',)
