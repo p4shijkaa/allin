@@ -96,6 +96,8 @@ class Establishment(models.Model):
                               null=True, verbose_name="Фото заведения")
     address = models.CharField(max_length=100, verbose_name="Адрес заведения")
     comment = models.TextField(null=True, blank=True, verbose_name="Комментарий к заведению")
+    city = models.ForeignKey('City', on_delete=models.SET_NULL, related_name="establishments", blank=True,
+                             null=True, verbose_name="Город")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
     publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
@@ -184,4 +186,16 @@ class Review(models.Model):
         verbose_name_plural = "Отзывы"
 
     def __str__(self):
-        return self.is_active
+        return self.author.first_name if self.author and self.author.first_name else self.author.email
+
+
+class City(models.Model):
+    """Модель City представляет информацию об городе заведения. Предназначена для фильтрации заведений по городу"""
+    name = models.CharField(max_length=20, verbose_name='Название города')
+
+    class Meta:
+        verbose_name = "Город"
+        verbose_name_plural = "Города"
+
+    def __str__(self):
+        return self.name
