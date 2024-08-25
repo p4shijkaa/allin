@@ -1,13 +1,13 @@
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from product.models import Service
-from product.serializers import ServiceListSerializer, ServiceSerializer
+from product.models import Service, City
+from product.serializers import ServiceListSerializer, ServiceSerializer, CitySerializer
 
 
 @extend_schema_view(get=extend_schema(tags=["Услуги: список услуг"]))
 class ServiceListView(ListAPIView):
     """
-    Представление для отображения списка услуг
+    Представление для отображения списка услуг.
     """
     queryset = Service.objects.all()
     serializer_class = ServiceListSerializer
@@ -24,3 +24,11 @@ class ServiceDetailView(RetrieveAPIView):
     serializer_class = ServiceSerializer
     lookup_field = 'pk'
 
+
+@extend_schema_view(get=extend_schema(tags=["Услуги: список городов для фильтрации заведений"]))
+class CityListViews(ListAPIView):
+    """
+    Представление для отображения списка городов.
+    """
+    queryset = City.objects.all()
+    serializer_class = CitySerializer

@@ -140,3 +140,6 @@ class CityAdmin(admin.ModelAdmin):
     """Регистрация в админ панели модели City."""
 
     list_display = ["id", "name"]  # Поля отображаемые в админке
+    list_filter = ["name", ]  # Фильтрации по указанным полям
+    search_fields = ["name", ]  # Поле поиска по указанным полям
+    ordering = ["id", ]  # Упорядочивание по умолчанию

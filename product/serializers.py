@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from product.models import Service, Flowers, Establishment, Taxi, Image, Dish, Review, Decoration
+from product.models import Service, Flowers, Establishment, Taxi, Image, Dish, Review, Decoration, City
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -86,3 +86,9 @@ class ServiceListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'photo', 'discount', 'dateFrom', 'dateTo', 'comment']
         read_only_fields = ['name', 'description', 'photo', 'discount', 'dateFrom', 'dateTo']
 
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'name']
+        read_only_fields = ['name', ]
