@@ -3,7 +3,7 @@ version: '3.9'
 
 services:
   # Определяем название приложения в services.
-  all_inclusive:
+  all_inclusive_final:
     # Задаём название сети для контейнера.
     networks:
       - all_inclusive
@@ -23,7 +23,7 @@ services:
       - db
     # Подгружаем глобальные (логин,пароль БД) переменные для БД из .env файла.
     env_file:
-      - .env
+      - .env.template
     # Указываем что всё(все локальные изменения) в текущей директории должно быть доступно в контейнере.
     volumes:
       - .:/all_inclusive
@@ -37,20 +37,20 @@ services:
     networks:
       - all_inclusive
     # Задаём имя контейнера.
-    container_name: db_all_inclusive_container
+#    container_name: db_all_inclusive_container
     # Указываем какой образ использовать для запуска контейнера.
     image: postgres:16-alpine
     # Подгружаем переменные для БД из .env файла.
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "root1"
+      POSTGRES_DB: "all_inclusive"
     # Параметр сопоставляющий порты между хостом(5433) и контейнером(5432).
     ports:
       - '5433:5432'
     # Указываем том для хранения данных БД. Что бы не потерять данный при остановке контейнера.
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data1:/var/lib/postgresql/data
     # Контейнер будет перезапускаться, если он был остановлен, за исключением, когда он был остановлен вручную.
     restart: unless-stopped
 
@@ -65,10 +65,10 @@ services:
     image: dpage/pgadmin4
     # Подгружаем переменные для админки из .env файла.
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: "glebakulich2007@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "bestinworldx"
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
-      PGADMIN_LISTEN_PORT: 8080
+#      PGADMIN_LISTEN_PORT: 8080
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     # Указываем том для хранения данных Админки БД. Что бы не потерять данный при остановке контейнера.
     volumes:
@@ -81,7 +81,7 @@ services:
 
 # Указываем глобально, какие volumes у нас есть.
 volumes:
-  db_data:
+  db_data1:
     driver: local
   pgadmin:
     driver: local

@@ -42,7 +42,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 # AUTH
 AUTH_USER_MODEL = 'user_account_auth.User'
-AUTHENTICATION_BACKENDS = ('user_account_auth.backends.AuthBackend',)
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
+                           'user_account_auth.backends.AuthBackend',]
 
 # Application definition
 
@@ -101,14 +102,14 @@ load_dotenv()
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT"),
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "all_inclusive",
+        "USER": "postgres",
+        "PASSWORD": "root",
+        "HOST": 'localhost',
+       }
     }
-}
+
 
 
 # Password validation

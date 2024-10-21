@@ -20,6 +20,8 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
+from product.views import EstablishmentListAPIView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -27,6 +29,7 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('auth/', include('user_account_auth.urls')),
     path('product/', include('product.urls')),
+    path('api/city/<int:city_id>/establishments/', EstablishmentListAPIView.as_view(), name='api_establishments_by_city')
 ]
 
 if settings.DEBUG:

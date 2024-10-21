@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from product.models import Service, City
-from product.serializers import ServiceListSerializer, ServiceSerializer, CitySerializer
+from product.models import Service, City, Establishment
+from product.serializers import ServiceListSerializer, ServiceSerializer, CitySerializer, EstablishmentSerializer
 
 
 @extend_schema_view(get=extend_schema(tags=["Услуги: список услуг"]))
@@ -11,6 +11,15 @@ class ServiceListView(ListAPIView):
     """
     queryset = Service.objects.all()
     serializer_class = ServiceListSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sort_by = self.request.query_params.get('sort', None)  # Получаем параметр сортировки
+
+        if sort_by:
+            queryset = queryset.order_by(sort_by)
+
+        return queryset
 
 
 @extend_schema_view(get=extend_schema(tags=["Услуги: детальная информация об услуге"]))
@@ -32,3 +41,20 @@ class CityListViews(ListAPIView):
     """
     queryset = City.objects.all()
     serializer_class = CitySerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sort_by = self.request.query_params.get('sort', None)  # Получаем параметр сортировки
+
+        if sort_by:
+            queryset = queryset.order_by(sort_by)
+
+        return queryset
+
+
+class EstablishmentListAPIView(ListAPIView):
+    serializer_class = EstablishmentSerializer
+
+    def get_queryset(self):
+        city_id = self.kwargs['city_id']
+        return Establishment.objects.filter(city__id=city_id)

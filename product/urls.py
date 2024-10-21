@@ -1,6 +1,6 @@
 from django.urls import path
 
-from product.views import ServiceListView, ServiceDetailView, CityListViews
+from product.views import ServiceListView, ServiceDetailView, CityListViews, EstablishmentListAPIView
 
 urlpatterns = [
     path('list-services/', ServiceListView.as_view(), name='list_services'),

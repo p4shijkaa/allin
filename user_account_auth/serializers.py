@@ -1,8 +1,6 @@
-import logging
-
 from django.contrib.auth import get_user_model, authenticate
-from django.core.validators import EmailValidator
 from rest_framework import serializers
+
 from user_account_auth.models import User
 
 
@@ -28,6 +26,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Пользователь с такой почтой уже существует и активен.")
             else:
                 user.delete()
+        data['email'] = email
         return data
 
     def create(self, validated_data):
@@ -38,7 +37,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # Создаем пользователя с оставшимися данными
         user = User(**validated_data)
         user.set_password(password)
-        user.is_active = False  # Пользователь деактивирован до подтверждения почты
         user.save()
         return user
 
@@ -74,19 +72,16 @@ class LoginUserSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, data):
-        email = data.get('email')
+        email = data.get('email').lower()
         password = data.get('password')
         if email and password:
             user = User.objects.filter(email=email).first()
             if not user:
                 raise serializers.ValidationError("Неверные учетные данные.")
             if not user.is_active:
-                user.delete()
                 raise serializers.ValidationError(
                     "Ваш аккаунт не активирован. Пожалуйста, зарегистрируйтесь и подтвердите свою почту.")
             user = authenticate(username=email, password=password)
-            if not user:
-                raise serializers.ValidationError("Неверные учетные данные.")
             data['user'] = user
         else:
             raise serializers.ValidationError("Необходимо указать email и пароль.")
@@ -139,6 +134,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     Сериализатор для просмотра/редактирования информации о пользователе.
     """
+
     class Meta:
         model = get_user_model()
         fields = ('first_name', 'last_name', 'email', 'phone', 'date_joined', 'about_me', 'city', 'is_active')
