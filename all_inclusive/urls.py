@@ -29,7 +29,8 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('auth/', include('user_account_auth.urls')),
     path('product/', include('product.urls')),
-    path('api/city/<int:city_id>/establishments/', EstablishmentListAPIView.as_view(), name='api_establishments_by_city')
+    path('api/establishments/<int:city_id>/<int:service_id>/<str:date>/', EstablishmentListAPIView.as_view(),
+         name='api_establishments_by_city'),
 ]
 
 if settings.DEBUG:
