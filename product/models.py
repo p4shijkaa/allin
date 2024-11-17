@@ -100,6 +100,19 @@ class Establishment(models.Model):
                              null=True, verbose_name="Город")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
     publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
+    start_date = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="Дата и время начала"
+    )
+    end_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Дата и время окончания"
+    )
+    total_tables = models.PositiveIntegerField(default=0, verbose_name="Общее количество столиков")
+
+    opening_time = models.TimeField(verbose_name="Время открытия", default='10:00')
+    closing_time = models.TimeField(verbose_name="Время закрытия", default='22:00')
 
     class Meta:
         verbose_name = "Заведение"
@@ -107,6 +120,29 @@ class Establishment(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Reservation(models.Model):
+    """Модель для бронирования столиков."""
+    establishment = models.ForeignKey(Establishment, on_delete=models.CASCADE, related_name='reservations')
+    reserved_tables = models.PositiveIntegerField(default=1, verbose_name="Забронированные столики")
+    reservation_time = models.DateTimeField(verbose_name="Дата и время бронирования")
+
+    def save(self, *args, **kwargs):
+        # Уменьшаем общее количество столиков при бронировании
+        if self.establishment.total_tables >= self.reserved_tables:
+            self.establishment.total_tables -= self.reserved_tables
+            self.establishment.save()
+        else:
+            raise ValueError("Недостаточно столиков для бронирования.")
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Бронирование"
+        verbose_name_plural = "Бронирование"
+
+    def __str__(self):
+        return f"Бронирование у {self.establishment.name} на {self.reservation_time}"
 
 
 class Dish(models.Model):

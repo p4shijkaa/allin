@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from product.models import Service, Flowers, Establishment, Dish, Taxi, Review, Image, Decoration, City
+from product.models import Service, Flowers, Establishment, Dish, Taxi, Review, Image, Decoration, City, Reservation
 
 
 def photo(obj):
@@ -143,3 +143,29 @@ class CityAdmin(admin.ModelAdmin):
     list_filter = ["name", ]  # Фильтрации по указанным полям
     search_fields = ["name", ]  # Поле поиска по указанным полям
     ordering = ["id", ]  # Упорядочивание по умолчанию
+
+
+@admin.register(Reservation)
+class ReservationAdmin(admin.ModelAdmin):
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('establishment')
+
+    def establishment_name(self, obj):
+        return obj.establishment.name
+
+    establishment_name.short_description = 'Заведение'
+
+    list_display = ('establishment', 'reserved_tables', 'reservation_time')  # Поля, которые вы хотите отобразить в списке
+    search_fields = ('establishment__name',)  # Поиск по названию заведения
+    list_filter = ('establishment', 'reservation_time',)  # Фильтрация по времени бронирования
+    list_select_related = ('establishment',)
+    ordering = ('establishment', 'reservation_time')
+
+    fieldsets = (
+        (None, {
+            'fields': ('establishment', 'reserved_tables', 'reservation_time')
+        }),
+    )
+

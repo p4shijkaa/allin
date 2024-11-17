@@ -23,7 +23,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Establishment
-        fields = ['id', 'name', 'description', 'photo', 'address', 'comment']
+        fields = '__all__'
         read_only_fields = ['name', 'description', 'photo', 'address']
 
 

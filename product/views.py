@@ -76,11 +76,11 @@ class EstablishmentListAPIView(ListAPIView):
         # Фильтрация по дате (если добавлены соответствующие поля в модель)
         date = self.kwargs.get('date')
         if date:
-            queryset = queryset.filter(start_date__gte=date)
+            queryset = queryset.filter(start_date__lte=date)
 
         end_date = self.kwargs.get('end_date')
         if end_date:
-            queryset = queryset.filter(end_date__lte=end_date)
+            queryset = queryset.filter(end_date__gte=end_date)
 
         return queryset
 
