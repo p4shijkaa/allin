@@ -100,15 +100,7 @@ class Establishment(models.Model):
                              null=True, verbose_name="Город")
     is_active = models.BooleanField(default=True, verbose_name="Активно/неактивно")
     publish = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
-    start_date = models.DateTimeField(
-        default=timezone.now,
-        verbose_name="Дата и время начала"
-    )
-    end_date = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="Дата и время окончания"
-    )
+    start_date = models.DateField(verbose_name='Дата бронирования')
     total_tables = models.PositiveIntegerField(default=0, verbose_name="Общее количество столиков")
 
     opening_time = models.TimeField(verbose_name="Время открытия", default='10:00')
