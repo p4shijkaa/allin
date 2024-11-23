@@ -13,7 +13,6 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -172,13 +171,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
-# Настройки Celery
-CELERY_BEAT_SCHEDULE = {
-    'close_establishments_daily': {
-        'task': 'your_app_name.tasks.close_establishments',
-        'schedule': crontab(minute='0', hour='15'),  # Каждый день в 23:00
-    },
-}
+
 # EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mail.ru'
